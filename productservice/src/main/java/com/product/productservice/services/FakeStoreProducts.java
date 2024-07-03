@@ -2,6 +2,8 @@ package com.product.productservice.services;
 
 import com.product.productservice.configurations.ApiConfig;
 import com.product.productservice.dtos.ProductResponseDto;
+import com.product.productservice.exceptions.CategoryNotPresentException;
+import com.product.productservice.exceptions.ProductNotFoundException;
 import com.product.productservice.models.Category;
 import com.product.productservice.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,13 @@ public class FakeStoreProducts implements IProductService{
         this.restTemplate=restTemplate;
     }
     @Override
-    public Product getSingleProduct(Long id) {
+    public Product getSingleProduct(Long id) throws ProductNotFoundException {
+        if(id>20 && id<40){
+            throw new ProductNotFoundException();
+        }
+        if(id>40){
+            throw new ArithmeticException();
+        }
         ProductResponseDto res=restTemplate.getForObject(apiConfig.getFakeStoreApiUrl()+id, ProductResponseDto.class);
         return mapToProducts(res);
     }
@@ -82,15 +90,16 @@ public class FakeStoreProducts implements IProductService{
     }
 
     @Override
-    public List<Product> getProductInASpecificCategory(String category) {
-        System.out.println(category);
+    public List<Product> getProductInASpecificCategory(String category) throws CategoryNotPresentException {
         ProductResponseDto[] res=restTemplate.getForObject(apiConfig.getFakeStoreApiUrl()+"category/"+category,ProductResponseDto[].class);
         List<Product> productList=new ArrayList<>();
         for(ProductResponseDto r:res){
-            System.out.println("r category "+r.getCategory()+", category "+category);
             if(category.equalsIgnoreCase(r.getCategory())){
                 productList.add(mapToProducts(r));
             }
+        }
+        if(productList.isEmpty()){
+            throw new CategoryNotPresentException();
         }
         return productList;
     }

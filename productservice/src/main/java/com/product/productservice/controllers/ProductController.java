@@ -1,11 +1,17 @@
 package com.product.productservice.controllers;
 import com.product.productservice.dtos.ProductRequestDto;
+import com.product.productservice.dtos.ProductResponseMessageDto;
+import com.product.productservice.exceptions.CategoryNotPresentException;
+import com.product.productservice.exceptions.ProductNotFoundException;
 import com.product.productservice.models.Category;
 import com.product.productservice.models.Product;
 import com.product.productservice.services.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -22,9 +28,22 @@ public class ProductController {
 
     }
     @GetMapping("/{id}")
-    public Product getSingleProduct(@PathVariable Long id){
-        return iProductService.getSingleProduct(id);
-
+    public ResponseEntity<ProductResponseMessageDto> getSingleProduct(@PathVariable Long id){
+        Product product;
+        try {
+            product=iProductService.getSingleProduct(id);
+        }catch(ProductNotFoundException e){
+            return new ResponseEntity<>(new ProductResponseMessageDto(null,"Product Doesn't Exist !!"), HttpStatus.NOT_FOUND);
+        }catch (ArithmeticException e){
+            return new ResponseEntity<>(new ProductResponseMessageDto(null,"Something went wrong"),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(new ProductResponseMessageDto(product,"Product Exist"),HttpStatus.OK);
+    }
+    @GetMapping("exception/{id}")
+    public ResponseEntity<ProductResponseMessageDto> getSingleProductException(@PathVariable Long id) throws ProductNotFoundException {
+        Product product;
+        product=iProductService.getSingleProduct(id);
+        return new ResponseEntity<>(new ProductResponseMessageDto(product,"Product Exist"),HttpStatus.OK);
     }
     @GetMapping("")
     public List<Product> getLimitedProduct(@RequestParam int limit){
@@ -42,12 +61,24 @@ public class ProductController {
 
     }
     @GetMapping("/category/{category}")
-    public List<Product> getProductInASpecificCategory(@PathVariable String category){
-        return iProductService.getProductInASpecificCategory(category);
-
+    public ResponseEntity<ProductResponseMessageDto> getProductInASpecificCategory(@PathVariable String category){
+        List<Product> productList;
+        try{
+            productList=iProductService.getProductInASpecificCategory(category);
+        }catch (CategoryNotPresentException e){
+            List<String> categoryName=new ArrayList<>();
+            for(Category c:getAllCategory()){
+                categoryName.add(c.getName());
+            }
+            String message = "Category Not Available. Please select any one from " + categoryName;
+            return new ResponseEntity<>(
+                    new ProductResponseMessageDto(null,message),HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(new ProductResponseMessageDto(productList,"SUCCESS"),HttpStatus.OK);
     }
     @PostMapping("/products")
     public Product addProduct(@RequestBody ProductRequestDto req){
+
         return new Product();
     }
     @PatchMapping("/products/{id}")
