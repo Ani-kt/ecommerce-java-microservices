@@ -129,6 +129,19 @@ public class FakeStoreProducts implements IProductService{
         return true;
     }
 
+    @Override
+    public List<ProductResponseDto> getProductByCategoryId(List<Long> categoryId) throws ProductNotFoundException {
+        List<Product> p=productRepository.findByCategoryIdIn(categoryId);
+        if(p.isEmpty()){
+            throw new ProductNotFoundException();
+        }
+        List<ProductResponseDto> productResponseDtos=new ArrayList<>();
+        for(Product product:p){
+            productResponseDtos.add(productMapToProductResponseDto(product));
+        }
+        return productResponseDtos;
+    }
+
     private Product reqDtoToProduct(ProductRequestDto req) {
         Product product=new Product();
         product.setName(req.getTitle());

@@ -1,5 +1,7 @@
 package com.product.productservice.controllers;
+import com.product.productservice.ProductserviceApplication;
 import com.product.productservice.dtos.ProductRequestDto;
+import com.product.productservice.dtos.ProductResponseDto;
 import com.product.productservice.dtos.ProductResponseMessageDto;
 import com.product.productservice.exceptions.CategoryNotPresentException;
 import com.product.productservice.exceptions.ProductNotFoundException;
@@ -76,7 +78,7 @@ public class ProductController {
         }
         return new ResponseEntity<>(new ProductResponseMessageDto(productList,"SUCCESS"),HttpStatus.OK);
     }
-    @PostMapping("/products")
+    @PostMapping("/store-products")
     public String addProduct(@RequestBody ProductRequestDto req){
         Boolean flag=iProductService.saveProduct(req);
         if(flag){
@@ -84,6 +86,11 @@ public class ProductController {
         }else{
             return "FAILURE";
         }
+    }
+    @GetMapping("/byCategoryId")
+    public ResponseEntity<ProductResponseMessageDto> getProductByCategoryId(@RequestParam("categoryIds") List<Long> id) throws ProductNotFoundException {
+        List<ProductResponseDto> products = iProductService.getProductByCategoryId(id);
+        return new ResponseEntity<>(new ProductResponseMessageDto(products,"SUCCESS"),HttpStatus.OK);
     }
     @PatchMapping("/products/{id}")
     public Product updateProduct(@PathVariable Long id,@RequestBody ProductRequestDto req){

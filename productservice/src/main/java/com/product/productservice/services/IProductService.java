@@ -1,6 +1,7 @@
 package com.product.productservice.services;
 
 import com.product.productservice.dtos.ProductRequestDto;
+import com.product.productservice.dtos.ProductResponseDto;
 import com.product.productservice.exceptions.CategoryNotPresentException;
 import com.product.productservice.exceptions.ProductNotFoundException;
 import com.product.productservice.models.Category;
@@ -23,4 +24,6 @@ public interface IProductService {
     List<Product> getProductInASpecificCategory(String category) throws CategoryNotPresentException;
 
     Boolean saveProduct(ProductRequestDto req);
+
+    List<ProductResponseDto> getProductByCategoryId(List<Long> id) throws ProductNotFoundException;
 }
