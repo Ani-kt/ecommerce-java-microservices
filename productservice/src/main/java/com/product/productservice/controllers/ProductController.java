@@ -77,9 +77,13 @@ public class ProductController {
         return new ResponseEntity<>(new ProductResponseMessageDto(productList,"SUCCESS"),HttpStatus.OK);
     }
     @PostMapping("/products")
-    public Product addProduct(@RequestBody ProductRequestDto req){
-
-        return new Product();
+    public String addProduct(@RequestBody ProductRequestDto req){
+        Boolean flag=iProductService.saveProduct(req);
+        if(flag){
+            return "SUCCESS";
+        }else{
+            return "FAILURE";
+        }
     }
     @PatchMapping("/products/{id}")
     public Product updateProduct(@PathVariable Long id,@RequestBody ProductRequestDto req){
