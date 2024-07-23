@@ -1,0 +1,3 @@
+create table category (id bigint not null auto_increment, name varchar(255), primary key (id)) engine=InnoDB;
+create table product (price float(23) not null, category_id bigint, id bigint not null auto_increment, description varchar(255), image varchar(255), name varchar(255), primary key (id)) engine=InnoDB;
+alter table product add constraint FK1mtsbur82frn64de7balymq9s foreign key (category_id) references category (id);

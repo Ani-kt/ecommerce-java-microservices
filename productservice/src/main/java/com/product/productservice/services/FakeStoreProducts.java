@@ -51,7 +51,7 @@ public class FakeStoreProducts implements IProductService{
         product.getCategory().setName(res.getCategory());
         product.setImage(res.getImage());
         product.setPrice(res.getPrice());
-        product.setDescription(res.getDescription());
+        product.setDescr(res.getDescription());
         return product;
     }
     @Override
@@ -149,7 +149,7 @@ public class FakeStoreProducts implements IProductService{
         product.getCategory().setName(req.getCategory());
         product.setImage(req.getImage());
         product.setPrice(req.getPrice());
-        product.setDescription(req.getDescription());
+        product.setDescr(req.getDescription());
         return product;
     }
     private ProductResponseDto productMapToProductResponseDto(Product product) {
@@ -157,7 +157,7 @@ public class FakeStoreProducts implements IProductService{
         response.setId(product.getId());
         response.setTitle(product.getName());
         response.setPrice(product.getPrice());
-        response.setDescription(product.getDescription());
+        response.setDescription(product.getDescr());
         response.setCategory(product.getCategory().getName());
         response.setImage(product.getImage());
         return response;

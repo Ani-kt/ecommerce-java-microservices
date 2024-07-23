@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 @Setter
 @Entity
 public class Product extends BaseModel {
-    private String description;
+    private String descr;
     private String image;
     private float price;
     @ManyToOne
