@@ -1,5 +1,5 @@
 package com.product.productservice.controllers;
-import com.product.productservice.ProductserviceApplication;
+
 import com.product.productservice.dtos.ProductRequestDto;
 import com.product.productservice.dtos.ProductResponseDto;
 import com.product.productservice.dtos.ProductResponseMessageDto;
