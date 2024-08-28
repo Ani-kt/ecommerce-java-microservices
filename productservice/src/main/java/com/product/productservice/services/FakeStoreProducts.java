@@ -10,9 +10,11 @@ import com.product.productservice.models.Product;
 import com.product.productservice.repositories.CategoryRepository;
 import com.product.productservice.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -24,23 +26,32 @@ public class FakeStoreProducts implements IProductService{
     RestTemplate restTemplate;
     ProductRepository productRepository;
     CategoryRepository categoryRepository;
+    RedisTemplate redisTemplate;
     @Autowired
-    public FakeStoreProducts(ApiConfig apiConfig,RestTemplate restTemplate,ProductRepository productRepository,CategoryRepository categoryRepository) {
+    public FakeStoreProducts(ApiConfig apiConfig,RestTemplate restTemplate,ProductRepository productRepository,CategoryRepository categoryRepository,
+                             RedisTemplate redisTemplate) {
         this.apiConfig=apiConfig;
         this.restTemplate=restTemplate;
         this.productRepository=productRepository;
         this.categoryRepository=categoryRepository;
+        this.redisTemplate=redisTemplate;
     }
     @Override
     public Product getSingleProduct(Long id) throws ProductNotFoundException {
-        if(id>20 && id<40){
-            throw new ProductNotFoundException();
+        if(redisTemplate.opsForHash().hasKey(id,"getSingleProd")==false) {
+            if (id > 20 && id < 40) {
+                throw new ProductNotFoundException();
+            }
+            if (id > 40) {
+                throw new ArithmeticException();
+            }
+            ProductResponseDto res = restTemplate.getForObject(apiConfig.getFakeStoreApiUrl() + id, ProductResponseDto.class);
+            redisTemplate.opsForHash().put(id, "getSingleProd", resmapToProducts(res));
+
+            // Map the response and save it in the Redis cache with TTL
+            redisTemplate.opsForValue().set(id.toString(), resmapToProducts(res), Duration.ofMinutes(5));
         }
-        if(id>40){
-            throw new ArithmeticException();
-        }
-        ProductResponseDto res=restTemplate.getForObject(apiConfig.getFakeStoreApiUrl()+id, ProductResponseDto.class);
-        return resmapToProducts(res);
+        return (Product) redisTemplate.opsForHash().get(id,"getSingleProd");
     }
 
     private Product resmapToProducts(ProductResponseDto res) {
